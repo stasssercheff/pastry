@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.addEventListener('input', saveFormData);
   });
 
-  // === Функция сборки сообщения === (отправляет только выбранное)
+  // === Функция сборки сообщения ===
   const buildMessage = (lang) => {
     let message = `🧾 <b>${lang === 'en' ? 'Order list' : 'Списание/Отдано'}</b>\n\n`;
 
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       section.querySelectorAll('.dish').forEach(dish => {
         const select = dish.querySelector('select.qty');
-        if (!select || !select.value) return; // пропуск, если ничего не выбрано
+        if (!select || !select.value) return;
 
         const label = dish.querySelector('label.check-label');
         const labelText = select?.dataset[`label${lang.toUpperCase()}`] || label?.dataset[lang] || '—';
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }).then(res => res.json());
     };
 
-    // Разделение длинного текста на части и отправка
+    // Разделение длинного текста на части
     const sendAllParts = async (text) => {
       let start = 0;
       while (start < text.length) {
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    // Функция очистки формы
+    // Очистка формы
     const clearForm = () => {
       document.querySelectorAll('select').forEach(select => {
         select.value = '';
@@ -176,9 +176,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     (async () => {
       try {
-        // Отправляем по одному разу на каждый язык
-        await sendAllParts(buildMessage('ru'));
-        await sendAllParts(buildMessage('en'));
+        const checkbox = document.getElementById('sendBoth');
+        const mode = checkbox?.checked ? 'both' : 'ru';
+
+        if (mode === 'ru') {
+          await sendAllParts(buildMessage('ru'));
+        } else if (mode === 'both') {
+          await sendAllParts(buildMessage('ru'));
+          await sendAllParts(buildMessage(document.documentElement.lang));
+        }
 
         alert('✅ Чеклист отправлен!');
         localStorage.clear();
